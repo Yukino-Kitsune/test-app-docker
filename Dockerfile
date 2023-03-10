@@ -30,7 +30,7 @@ RUN apt-get update && apt-get -y upgrade && apt-get install -y \
     gnupg \
     gnupg2 \
     gnupg1
-RUN curl -sL https://deb.nodesource.com/setup_12.x -o nodesource_setup.sh
+RUN curl -sL https://deb.nodesource.com/setup_18.x -o nodesource_setup.sh
 RUN bash nodesource_setup.sh
 RUN apt-get install -y nodejs
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
