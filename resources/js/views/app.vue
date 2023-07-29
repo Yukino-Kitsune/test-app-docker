@@ -65,6 +65,7 @@
 import axios from "axios";
 import DatePicker from "vue2-datepicker";
 import 'vue2-datepicker/index.css';
+import {store} from "../app";
 
 const default_layout = "default";
 
@@ -79,6 +80,7 @@ export default {
         }
     },
     computed: {
+        test() { return store.state.count;},
         pageCount() {
             return Math.ceil(this.comments.length / this.size);
         },
