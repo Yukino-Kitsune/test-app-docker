@@ -1,21 +1,34 @@
 <template>
     <div class="container p-3">
 <!--        <button class="btn btn-primary" @click.prevent="generateComms">Generate</button>-->
-        <div class="card bg-light rounded my-3" v-for="comment in paginated">
-            <div class="d-flex justify-content-between">
-                <div class="d-flex">
-                    <h4 class="mx-2">{{comment.name}}</h4>
-                </div>
-                <div class="d-flex">
-                    <a class="btn btn-primary">#edit</a>
-                    <a class="btn btn-danger mx-1" @click.prevent="deleteOne(comment.id)">#delete</a>
-                </div>
-            </div>
-            <div class="border-top border-bottom">
-                <p class="mx-4">{{ comment.text }}</p>
-            </div>
+        <div class="card rounded">
             <div>
-                <h6 class="mx-2">{{comment.date}}</h6>
+                <ul class="nav justify-content-end mx-3">
+                    <li class="mx-1">
+                        <a class="nav-item" @click.prevent="sortById">id</a>
+                    </li>
+                    <li class="mx-1">
+                        <a class="nav-item" @click.prevent="sortByDate">date</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card bg-light rounded my-3" v-for="comment in paginated">
+                <div class="d-flex justify-content-between">
+                    <div class="d-flex">
+                        <h5 class="mx-1">#{{comment.id}}</h5>
+                        <h4 class="mx-1">{{comment.name}}</h4>
+                    </div>
+                    <div class="d-flex">
+                        <a class="btn btn-primary">#edit</a>
+                        <a class="btn btn-danger mx-1" @click.prevent="deleteOne(comment.id)">#delete</a>
+                    </div>
+                </div>
+                <div class="border-top border-bottom">
+                    <p class="mx-4">{{ comment.text }}</p>
+                </div>
+                <div>
+                    <h6 class="mx-2">{{comment.date}}</h6>
+                </div>
             </div>
         </div>
         <div>
@@ -73,7 +86,7 @@ export default {
             const start = this.page * this.size;
             const end = start + this.size;
             this.paginated = this.comments.slice(start, end);
-        }
+        },
     },
     data() {
         return {
@@ -83,6 +96,8 @@ export default {
             text: null,
             page: 0,
             paginated: null,
+            idSortDirection: 1,
+            dateSortDirection: 1
         }
     },
     mounted() {
@@ -149,6 +164,32 @@ export default {
             this.page--;
             this.$forceUpdate();
         },
+        sortById() {
+            if(this.idSortDirection === 1) {
+                this.idSortDirection = - this.idSortDirection;
+                this.comments = this.comments.slice().sort(function (a, b) {
+                    return a.id - b.id;
+                });
+            } else if(this.idSortDirection === -1) {
+                this.idSortDirection = - this.idSortDirection;
+                this.comments = this.comments.slice().sort(function(b, a) {
+                    return a.id - b.id;
+                });
+            }
+        },
+        sortByDate() {
+            if(this.dateSortDirection === 1) {
+                this.dateSortDirection = - this.dateSortDirection;
+                this.comments = this.comments.slice().sort(function (a, b) {
+                    return new Date(a.date) - new Date(b.date);
+                });
+            } else if (this.dateSortDirection === -1) {
+                this.dateSortDirection = - this.dateSortDirection;
+                this.comments = this.comments.slice().sort(function(b, a) {
+                    return new Date(a.date) - new Date(b.date);
+                });
+            }
+        }
     }
 };
 </script>
