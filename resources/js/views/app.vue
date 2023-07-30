@@ -19,8 +19,7 @@
                         <h4 class="mx-1">{{comment.name}}</h4>
                     </div>
                     <div class="d-flex">
-                        <a class="btn btn-primary">#edit</a>
-                        <a class="btn btn-danger mx-1" @click.prevent="deleteOne(comment.id)">#delete</a>
+                        <a class="btn btn-danger mx-1" @click.prevent="deleteOne(comment.id)">Удалить</a>
                     </div>
                 </div>
                 <div class="border-top border-bottom">
@@ -31,16 +30,22 @@
                 </div>
             </div>
         </div>
-        <div>
+        <div class="my-2">
             <nav>
                 <ul class="pagination">
                     <li class="page-item"><button class="page-link" @click="prevPage" :disabled="page===0">Prev</button></li>
                     <li class="page-item"><input type="text" class="form-control page-control" v-model="page"></li>
                     <li class="page-item"><button class="page-link" @click="nextPage" :disabled="page=== pageCount - 1">Next</button></li>
+                    <li class="page-item"><h6 class="m-2">{{page}} - {{pageCount}}</h6></li>
                 </ul>
             </nav>
         </div>
         <div class="border-top">
+            <div v-if="errors.length">
+                <div v-for="error in errors">
+                    <div class="alert alert-danger">{{error}}</div>
+                </div>
+            </div>
             <form>
                 <div>
                     <label for="name" class="form-label">Имя</label>
@@ -50,7 +55,7 @@
                     <label for="text" class="form-label">Комментарий</label>
                     <textarea type="text" class="form-control comment-control" id="text" name="text" v-model="text" required></textarea>
                 </div>
-                <div>
+                <div class="my-3">
                     <label for="date">Дата публикации</label>
                     <date-picker id="date" v-model="datetime" type="datetime"></date-picker>
                 </div>
@@ -99,7 +104,8 @@ export default {
             page: 0,
             paginated: null,
             idSortDirection: 1,
-            dateSortDirection: 1
+            dateSortDirection: 1,
+            errors: []
         }
     },
     mounted() {
@@ -127,6 +133,19 @@ export default {
             }
         },
         insertOne: function (event) {
+            this.errors = [];
+            if(!this.name) {
+                this.errors.push('Введите имя');
+            }
+            if(!this.text) {
+                this.errors.push('Введите комментарий');
+            }
+            if(!this.datetime) {
+                this.errors.push('Укажите дату');
+            }
+            if(this.errors.length) {
+                return;
+            }
             const data = JSON.stringify({
                 name: this.name,
                 text: this.text,
@@ -140,7 +159,9 @@ export default {
                     }
                 })
                 .catch(error => {console.error(error)})
-
+            this.name = '';
+            this.text = '';
+            this.datetime = '';
         },
         getAll: function () {
             axios
