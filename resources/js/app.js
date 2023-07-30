@@ -35,6 +35,26 @@ export const store = new Vuex.Store({
         },
         updatePage(state, newPage) {
             state.currentPage = newPage;
+        },
+        sortByIdASC(state) {
+            state.comments = state.comments.slice().sort(function (a, b) {
+                return a.id - b.id;
+            });
+        },
+        sortByIdDESC(state) {
+            state.comments = state.comments.slice().sort(function (b, a) {
+                return a.id - b.id;
+            });
+        },
+        sortByDateASC(state) {
+            state.comments = state.comments.slice().sort(function (a, b) {
+                return new Date(a.date) - new Date(b.date);
+            });
+        },
+        sortByDateDESC(state) {
+            state.comments = state.comments.slice().sort(function (b, a) {
+                return new Date(a.date) - new Date(b.date);
+            });
         }
     },
     actions: {
@@ -74,6 +94,28 @@ export const store = new Vuex.Store({
         setPage(state, newPage) {
             state.commit('updatePage', newPage);
             state.dispatch('updatePagination');
+        },
+        sortComments(state, method) {
+            switch (method) {
+                case 'idASC':
+                    state.commit('sortByIdASC');
+                    state.dispatch('updatePagination');
+                    break;
+                case 'idDESC':
+                    state.commit('sortByIdDESC');
+                    state.dispatch('updatePagination');
+                    break;
+                case 'dateASC':
+                    state.commit('sortByDateASC');
+                    state.dispatch('updatePagination');
+                    break;
+                case 'dateDESC':
+                    state.commit('sortByDateDESC');
+                    state.dispatch('updatePagination');
+                    break;
+                default:
+                    break;
+            }
         }
     }
 })
@@ -83,5 +125,4 @@ const app = new Vue({
     components: { App },
     store: store
 });
-
 

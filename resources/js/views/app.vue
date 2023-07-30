@@ -1,16 +1,18 @@
 <template>
     <div class="container p-3">
-<!--        <button class="btn btn-primary" @click.prevent="generateComms">Generate</button>-->
         <div class="card rounded">
-            <div>
-                <ul class="nav justify-content-end mx-3">
-                    <li class="mx-1">
-                        <a class="nav-item" @click.prevent="sortById">id</a>
-                    </li>
-                    <li class="mx-1">
-                        <a class="nav-item" @click.prevent="sortByDate">date</a>
-                    </li>
-                </ul>
+            <div class="justify-content-end">
+                <div class="dropdown m-1">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Сортировать
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" @click.prevent="store.dispatch('sortComments', 'idASC')">Id &#9650</a></li>
+                        <li><a class="dropdown-item" @click.prevent="store.dispatch('sortComments', 'idDESC')">Id &#9660</a></li>
+                        <li><a class="dropdown-item" @click.prevent="store.dispatch('sortComments', 'dateASC')">Date &#9650</a></li>
+                        <li><a class="dropdown-item" @click.prevent="store.dispatch('sortComments', 'dateDESC')">Date &#9660</a></li>
+                    </ul>
+                </div>
             </div>
             <div class="card bg-light rounded my-3" v-for="comment in paginated">
                 <div class="d-flex justify-content-between">
@@ -67,7 +69,6 @@
     </div>
 </template>
 <script>
-import axios from "axios";
 import DatePicker from "vue2-datepicker";
 import 'vue2-datepicker/index.css';
 import {store} from "../app";
@@ -78,7 +79,7 @@ const default_layout = "default";
 export default {
     components: {DatePicker},
     computed: {
-        allComments() { return store.state.comments;}, // TODO переделать на getters
+        store() { return store;}, // TODO не нравится мне это
         paginated() { return store.state.paginatedComments;},
         pages() { return store.state.pagesCount;},
         currPage: {
@@ -95,35 +96,13 @@ export default {
             datetime: null,
             name: null,
             text: null,
-            idSortDirection: 1,
-            dateSortDirection: 1,
-            errors: []
+            errors: [],
         }
     },
     mounted() {
         store.dispatch('getComments');
     },
     methods: {
-        sleep(milliseconds) {
-            return new Promise((resolve) => setTimeout(resolve, milliseconds));
-        },
-        async generateComms() {
-            for (let i = 0; i < 20; i++) { // При 50, начинает сыпать 429 ошибкой, при задержке в 500 мс
-                await this.sleep(1000);
-                axios
-                    .get('https://my.api.mockaroo.com/comms486.json?key=96438750')
-                    .then(response => {
-                        axios
-                            .post('/api/comments', response.data,{headers:{"Content-Type" : "application/json"}})
-                            .then(response => {
-                                if(response.status !== 200){
-                                    console.error('Error insert generated row: '+ response.status);
-                                }
-                            })
-                            .catch(error => {console.error(error)})
-                    })
-            }
-        },
         insertOne: function (event) {
             this.errors = [];
             if(!this.name) {
@@ -156,32 +135,6 @@ export default {
         },
         prevPage() {
             store.dispatch('setPage', --this.currPage);
-        },
-        sortById() {
-            if(this.idSortDirection === 1) {
-                this.idSortDirection = - this.idSortDirection;
-                this.comments = this.comments.slice().sort(function (a, b) {
-                    return a.id - b.id;
-                });
-            } else if(this.idSortDirection === -1) {
-                this.idSortDirection = - this.idSortDirection;
-                this.comments = this.comments.slice().sort(function(b, a) {
-                    return a.id - b.id;
-                });
-            }
-        },
-        sortByDate() {
-            if(this.dateSortDirection === 1) {
-                this.dateSortDirection = - this.dateSortDirection;
-                this.comments = this.comments.slice().sort(function (a, b) {
-                    return new Date(a.date) - new Date(b.date);
-                });
-            } else if (this.dateSortDirection === -1) {
-                this.dateSortDirection = - this.dateSortDirection;
-                this.comments = this.comments.slice().sort(function(b, a) {
-                    return new Date(a.date) - new Date(b.date);
-                });
-            }
         }
     }
 };
