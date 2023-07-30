@@ -33,10 +33,10 @@
         <div class="my-2">
             <nav>
                 <ul class="pagination">
-                    <li class="page-item"><button class="page-link" @click="prevPage" :disabled="page===0">Prev</button></li>
-                    <li class="page-item"><input type="text" class="form-control page-control" v-model="page"></li>
-                    <li class="page-item"><button class="page-link" @click="nextPage" :disabled="page=== pageCount - 1">Next</button></li>
-                    <li class="page-item"><h6 class="m-2">{{page}} - {{pageCount}}</h6></li>
+                    <li class="page-item"><button class="page-link" @click="prevPage" :disabled="currPage===0">Prev</button></li>
+                    <li class="page-item"><input type="text" class="form-control page-control" v-model="currPage"></li>
+                    <li class="page-item"><button class="page-link" @click="nextPage" :disabled="currPage=== pages">Next</button></li>
+                    <li class="page-item"><h6 class="m-2">{{currPage}} - {{pages}}</h6></li>
                 </ul>
             </nav>
         </div>
@@ -77,39 +77,31 @@ const default_layout = "default";
 
 export default {
     components: {DatePicker},
-    props: {
-        size: {
-            type: Number,
-            required: false,
-            default: 3
-        }
-    },
     computed: {
-        test() { return store.state.count;},
-        pageCount() {
-            return Math.ceil(this.comments.length / this.size);
-        },
-        paginatedComments() {
-            const start = this.page * this.size;
-            const end = start + this.size;
-            this.paginated = this.comments.slice(start, end);
-        },
+        allComments() { return store.state.comments;}, // TODO переделать на getters
+        paginated() { return store.state.paginatedComments;},
+        pages() { return store.state.pagesCount;},
+        currPage: {
+            get(){
+                return store.state.currentPage;
+            },
+            set(newPage) {
+                store.dispatch('setPage', newPage);
+            }
+        }
     },
     data() {
         return {
-            comments: null,
             datetime: null,
             name: null,
             text: null,
-            page: 0,
-            paginated: null,
             idSortDirection: 1,
             dateSortDirection: 1,
             errors: []
         }
     },
     mounted() {
-        this.getAll();
+        store.dispatch('getComments');
     },
     methods: {
         sleep(milliseconds) {
@@ -151,41 +143,19 @@ export default {
                 text: this.text,
                 date: this.datetime
             })
-            axios
-                .post('/api/comments', data,{headers:{"Content-Type" : "application/json"}})
-                .then(response => {
-                    if(response.status === 200){
-                        this.getAll(); // TODO Переделать
-                    }
-                })
-                .catch(error => {console.error(error)})
+            store.dispatch('insertOne', data);
             this.name = '';
             this.text = '';
             this.datetime = '';
         },
-        getAll: function () {
-            axios
-                .get('/api/comments')
-                .then(response => (this.comments = response.data))
-                .catch(error => {console.error(error)})
-        },
         deleteOne(id) {
-            axios
-                .delete('/api/comments/'+id)
-                .then(response => {
-                    if(response.status === 200){
-                    this.getAll(); // TODO Переделать
-                }
-                })
-                .catch(error => {console.error(error)})
+            store.dispatch('deleteOne', id);
         },
         nextPage: function () {
-            this.page++;
-            this.$forceUpdate(); // Не понимаю, почему не обновляется
+            store.dispatch('setPage', ++this.currPage);
         },
         prevPage() {
-            this.page--;
-            this.$forceUpdate();
+            store.dispatch('setPage', --this.currPage);
         },
         sortById() {
             if(this.idSortDirection === 1) {
