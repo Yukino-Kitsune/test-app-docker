@@ -1,0 +1,23 @@
+.name-control{
+    width: 180px;
+}
+.comment-control{
+    height: 100px;
+}
+.page-control{
+    width: 45px;
+}
+@media (min-width: 480px) {
+    .comment-control{
+        width: 400px;
+    }
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
