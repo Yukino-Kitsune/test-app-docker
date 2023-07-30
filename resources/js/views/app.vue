@@ -1,6 +1,6 @@
 <template>
     <div class="container p-3">
-        <div class="card rounded">
+        <div>
             <div class="justify-content-end">
                 <div class="dropdown m-1">
                     <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -36,7 +36,7 @@
             <nav>
                 <ul class="pagination">
                     <li class="page-item"><button class="page-link" @click="prevPage" :disabled="currPage===0">Prev</button></li>
-                    <li class="page-item"><input type="text" class="form-control page-control" v-model="currPage"></li>
+                    <li class="page-item mx-1"><input type="number" class="form-control page-control" v-model="currPage"></li>
                     <li class="page-item"><button class="page-link" @click="nextPage" :disabled="currPage=== pages">Next</button></li>
                     <li class="page-item"><h6 class="m-2">{{currPage}} - {{pages}}</h6></li>
                 </ul>
@@ -59,7 +59,7 @@
                 </div>
                 <div class="my-3">
                     <label for="date">Дата публикации</label>
-                    <date-picker id="date" v-model="datetime" type="datetime"></date-picker>
+                    <date-picker id="date" v-model="datetime" type="datetime" :lang="ru"></date-picker>
                 </div>
                 <div>
                     <button class="btn btn-primary" @click.prevent="insertOne">Отправить</button>
@@ -72,6 +72,7 @@
 import DatePicker from "vue2-datepicker";
 import 'vue2-datepicker/index.css';
 import {mapActions} from "vuex";
+import ru from "vue2-datepicker/locale/es/ru";
 
 const default_layout = "default";
 
@@ -79,6 +80,9 @@ const default_layout = "default";
 export default {
     components: {DatePicker},
     computed: {
+        ru() {
+            return ru
+        },
         paginated() {return this.$store.state.paginatedComments;},
         pages() { return this.$store.state.pagesCount;},
         currPage: {
@@ -86,7 +90,9 @@ export default {
                 return this.$store.state.currentPage;
             },
             set(newPage) {
-                this.$store.dispatch('setPage', newPage);
+                if(newPage >= 0 && newPage <= this.pages) {
+                    this.$store.dispatch('setPage', newPage);
+                }
             }
         }
     },
