@@ -7,10 +7,10 @@
                         Сортировать
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" @click.prevent="store.dispatch('sortComments', 'idASC')">Id &#9650</a></li>
-                        <li><a class="dropdown-item" @click.prevent="store.dispatch('sortComments', 'idDESC')">Id &#9660</a></li>
-                        <li><a class="dropdown-item" @click.prevent="store.dispatch('sortComments', 'dateASC')">Date &#9650</a></li>
-                        <li><a class="dropdown-item" @click.prevent="store.dispatch('sortComments', 'dateDESC')">Date &#9660</a></li>
+                        <li><a class="dropdown-item" @click.prevent="sort( 'idASC')">Id &#9650</a></li>
+                        <li><a class="dropdown-item" @click.prevent="sort('idDESC')">Id &#9660</a></li>
+                        <li><a class="dropdown-item" @click.prevent="sort('dateASC')">Date &#9650</a></li>
+                        <li><a class="dropdown-item" @click.prevent="sort('dateDESC')">Date &#9660</a></li>
                     </ul>
                 </div>
             </div>
@@ -71,7 +71,7 @@
 <script>
 import DatePicker from "vue2-datepicker";
 import 'vue2-datepicker/index.css';
-import {store} from "../app";
+import {mapActions} from "vuex";
 
 const default_layout = "default";
 
@@ -79,15 +79,14 @@ const default_layout = "default";
 export default {
     components: {DatePicker},
     computed: {
-        store() { return store;}, // TODO не нравится мне это
-        paginated() { return store.state.paginatedComments;},
-        pages() { return store.state.pagesCount;},
+        paginated() {return this.$store.state.paginatedComments;},
+        pages() { return this.$store.state.pagesCount;},
         currPage: {
             get(){
-                return store.state.currentPage;
+                return this.$store.state.currentPage;
             },
             set(newPage) {
-                store.dispatch('setPage', newPage);
+                this.$store.dispatch('setPage', newPage);
             }
         }
     },
@@ -100,10 +99,13 @@ export default {
         }
     },
     mounted() {
-        store.dispatch('getComments');
+        this.$store.dispatch('getComments');
     },
     methods: {
-        insertOne: function (event) {
+        ...mapActions({
+           sort: 'sortComments'
+        }),
+        insertOne: function () {
             this.errors = [];
             if(!this.name) {
                 this.errors.push('Введите имя');
@@ -122,19 +124,19 @@ export default {
                 text: this.text,
                 date: this.datetime
             })
-            store.dispatch('insertOne', data);
+            this.$store.dispatch('insertOne', data);
             this.name = '';
             this.text = '';
             this.datetime = '';
         },
         deleteOne(id) {
-            store.dispatch('deleteOne', id);
+            this.$store.dispatch('deleteOne', id);
         },
         nextPage: function () {
-            store.dispatch('setPage', ++this.currPage);
+            this.$store.dispatch('setPage', ++this.currPage);
         },
         prevPage() {
-            store.dispatch('setPage', --this.currPage);
+            this.$store.dispatch('setPage', --this.currPage);
         }
     }
 };
